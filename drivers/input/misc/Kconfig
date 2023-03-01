@@ -868,5 +868,10 @@ config STMVL53L0
 	help
 	 This option enables support for the STMVL53L0 laser sensor.
 
+config EPL8802
+	tristate "EPL8802 support"
+	help
+	 This option enables support for the EPL8802 proximity sensor.
+
 endif
 
