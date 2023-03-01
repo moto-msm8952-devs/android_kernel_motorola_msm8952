@@ -27,7 +27,6 @@
 #include "mdss_dsi.h"
 #include "mdss_panel.h"
 #include "mdss_debug.h"
-#include "mdss_dropbox.h"
 
 #define VSYNC_PERIOD 17
 #define DMA_TX_TIMEOUT 200
@@ -1341,26 +1340,11 @@ void mdss_dsi_ctrl_setup(struct mdss_dsi_ctrl_pdata *ctrl)
 	mdss_dsi_op_mode_config(pdata->panel_info.mipi.mode, pdata);
 }
 
-int mdss_dsi_reg_status_check_dropbox(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
+int mdss_dsi_reg_status_check_mmi(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
 {
-	static bool dropbox_sent;
-	int ret;
 	u8 reg_val = 0;
 
-	ret = mdss_dsi_reg_status_check(ctrl_pdata, &reg_val);
-	if (ret < 1) {
-		/* This warning message includes the wrong function name on
-		   purpose due to external analytical tools */
-		pr_warn("mdss_panel_check_status: ESD detected pwr_mode =0x%x expected mask = 0x%x\n",
-			reg_val, ctrl_pdata->status_value[0]);
-		if (!dropbox_sent) {
-			mdss_dropbox_report_event(MDSS_DROPBOX_MSG_ESD, 1);
-			dropbox_sent = true;
-		}
-	} else
-		dropbox_sent = false;
-
-	return ret;
+	return mdss_dsi_reg_status_check(ctrl_pdata, &reg_val);
 }
 
 /**
