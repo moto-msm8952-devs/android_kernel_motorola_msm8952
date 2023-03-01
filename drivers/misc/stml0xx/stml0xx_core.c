@@ -40,7 +40,6 @@
 #include <linux/uaccess.h>
 #include <linux/wakelock.h>
 #include <linux/workqueue.h>
-#include <linux/dropbox.h>
 #include <linux/string.h>
 
 #ifdef CONFIG_SENSORS_SH_AK09912
@@ -58,8 +57,6 @@
 #define STML0XX_BUSY_RESUME_COUNT  14
 #define STML0XX_BUSY_SUSPEND_COUNT 6
 #define STML0XX_SPI_FAIL_LIMIT     10
-
-#define DROPBOX_SENSORHUB_POWERON_ISSUE "sensorhub_poweron_issue"
 
 long stml0xx_time_delta;
 unsigned int stml0xx_irq_disable;
@@ -284,17 +281,6 @@ static void stml0xx_device_power_off(struct stml0xx_data *ps_stml0xx)
 	}
 }
 
-static void stml0xx_device_power_on_fail_dropbox(void)
-{
-	char dropbox_entry[256];
-
-	memset(dropbox_entry, 0, sizeof(dropbox_entry));
-	snprintf(dropbox_entry, sizeof(dropbox_entry),
-		"Sensor Hub Power on failure");
-	dropbox_queue_event_text(DROPBOX_SENSORHUB_POWERON_ISSUE,
-		dropbox_entry, strlen(dropbox_entry));
-}
-
 static int stml0xx_device_power_on(struct stml0xx_data *ps_stml0xx)
 {
 	int err = 0;
@@ -304,8 +290,6 @@ static int stml0xx_device_power_on(struct stml0xx_data *ps_stml0xx)
 		if (err < 0) {
 			dev_err(&ps_stml0xx->spi->dev,
 				"power_on failed: %d", err);
-			/* Send dropbox event to trigger bug2go report */
-			stml0xx_device_power_on_fail_dropbox();
 			return err;
 		}
 	}
@@ -313,8 +297,6 @@ static int stml0xx_device_power_on(struct stml0xx_data *ps_stml0xx)
 		err = stml0xx_hw_init(ps_stml0xx);
 		if (err < 0) {
 			stml0xx_device_power_off(ps_stml0xx);
-			/* Send dropbox event to trigger bug2go report */
-			stml0xx_device_power_on_fail_dropbox();
 			return err;
 		}
 	}
