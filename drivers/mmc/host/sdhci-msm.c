@@ -3958,6 +3958,7 @@ static int sdhci_msm_probe(struct platform_device *pdev)
 	msm_host->mmc->pm_caps |= MMC_PM_KEEP_POWER | MMC_PM_WAKE_SDIO_IRQ;
 	msm_host->mmc->caps2 |= MMC_CAP2_CORE_PM;
 	msm_host->mmc->caps2 |= MMC_CAP2_SANITIZE;
+	msm_host->mmc->caps2 |= MMC_CAP2_SLEEP_AWAKE;
 
 	if (msm_host->pdata->nonremovable)
 		msm_host->mmc->caps |= MMC_CAP_NONREMOVABLE;
@@ -4094,8 +4095,6 @@ static int sdhci_msm_probe(struct platform_device *pdev)
 			msm_host->pdata->mpm_sdiowakeup_int = -1;
 		}
 	}
-
-	device_enable_async_suspend(&pdev->dev);
 
 	err = sysfs_create_group(&pdev->dev.kobj, &mmc_health_attr_grp);
 	if (err)
